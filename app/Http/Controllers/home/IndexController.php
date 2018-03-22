@@ -4,6 +4,7 @@ namespace App\Http\Controllers\home;
 
 use App\Models\Index;
 use App\Models\Partner;
+use Cache;
 use Illuminate\Http\Request;
 
 class IndexController extends BaseController {
@@ -68,7 +69,11 @@ class IndexController extends BaseController {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show($id) {
-		$result['result'] = Index::where('id', $id)->first();
+		$result['result'] = Cache::remember('news_' . $id, 10060, function () use ($id) {
+
+			return Index::where('id', $id)->first();
+		});
+
 		$result['category_id'] = $result['result']['category_id'];
 
 		return view('home.index.show', $result);
